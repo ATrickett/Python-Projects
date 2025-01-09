@@ -21,7 +21,7 @@ Ensure you have Python 3.x installed along with the following dependencies:
 
 To install any missing dependencies, use:
 
-![[Pasted image 20250108222213.png]]
+![image](https://github.com/user-attachments/assets/37f558de-fc96-46f9-a504-2ed2e3992c8c)
 
 How to Run
 
@@ -29,7 +29,7 @@ How to Run
 2. Navigate to the directory containing the script.
 3. Run the script:
 
-![[Pasted image 20250108222143.png]]
+![image](https://github.com/user-attachments/assets/9789835b-1f96-4dde-badc-874f63548c13)
 
 **Usage**
 
@@ -60,7 +60,7 @@ How to Run
 
 **Main Interface**
 
-![[Pasted image 20250108222113.png]]
+![image](https://github.com/user-attachments/assets/fb196054-6f3b-4e0f-b5bb-230e7755a0ad)
 
 Limitations
 
