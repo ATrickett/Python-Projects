@@ -56,9 +56,14 @@ def scan_url(url):
             if link_domain and link_domain != base_domain and not should_ignore(link_domain):
                 external_links.append(full_link)
 
-        # Extract JS files
-        for script_tag in soup.find_all('script', src=True):
-            js_files.append(urljoin(url, script_tag['src']))
+        # Extract JS files (both external and inline)
+        for script_tag in soup.find_all('script'):
+            if script_tag.has_attr('src'):  # External JS
+                js_files.append(urljoin(url, script_tag['src']))
+            else:  # Inline JS
+                inline_js_content = script_tag.string or script_tag.text
+                if inline_js_content:  # Exclude empty or whitespace-only scripts
+                    js_files.append(f"INLINE: {inline_js_content.strip()}")
 
         # Extract CSS files
         for link_tag in soup.find_all('link', rel="stylesheet", href=True):
@@ -91,8 +96,12 @@ def start_scan(event=None):
             result_text.insert(tk.END, "\n".join(sorted(external_links)) + "\n")
 
         if js_var.get():
-            result_text.insert(tk.END, "\nJavaScript files found:\n")
-            result_text.insert(tk.END, "\n".join(sorted(js_files)) + "\n")
+            result_text.insert(tk.END, "\nJavaScript files found (including inline):\n")
+            for js in sorted(js_files):
+                if js.startswith("INLINE: "):
+                    result_text.insert(tk.END, f"\n--- Inline JS ---\n{js[8:]}\n")
+                else:
+                    result_text.insert(tk.END, js + "\n")
 
         if css_var.get():
             result_text.insert(tk.END, "\nCSS files found:\n")
@@ -107,7 +116,7 @@ def start_scan(event=None):
                 save_links_to_file(external_links, filename + "_external_links.txt")
                 save_links_to_file(js_files, filename + "_js_files.txt")
                 save_links_to_file(css_files, filename + "_css_files.txt")
-                messagebox.showinfo("Success", f"Links saved to {filename}_*.txt")
+                messagebox.showinfo("Success", f"Links and scripts saved to {filename}_*.txt")
 
         result_text.insert(tk.END, "\nScanning finished.")
     except Exception as e:
