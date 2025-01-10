@@ -1,83 +1,179 @@
-readme.md
+# External Link Explorer
 
-External Link Explorer is a Python-based GUI application that allows users to crawl websites and extract external links. It provides options to display the results on-screen, save them to a file, or both. The application includes a dynamic interface where users can resize the window and adjust font sizes for better readability.
+## Overview
 
-**Features**
+The Website Crawler Application is a Python-based tool with a graphical user interface (GUI) built using `tkinter`. It enables users to crawl websites starting from a given URL, extracting:
 
-- **Crawl Websites:** Extract external links from any website starting from a specified URL.
-- **Print and Save Options:** Choose to display links on-screen, save them to a file, or both.
-- **Dynamic Font Adjustment:** Increase or decrease font size for better usability.
-- **Resizable Output Area:** The output display dynamically adjusts when resizing the window.
-- **Customizable Theme:** A sleek dark mode with a black background and white text.
+- External links
+- JavaScript files
+- CSS files
 
-**Prerequisites**
+The application includes a multithreaded crawling mechanism for efficiency, dynamic layout for user interface responsiveness, and advanced options to customize the crawl.
 
-Ensure you have Python 3.x installed along with the following dependencies:
+---
 
-- requests
-- bs4 (BeautifulSoup)
-- urllib3
-- tkinter (built into Python on most platforms)
+## Features
 
-To install any missing dependencies, use:
+### **Graphical User Interface (GUI)**
 
-![image](https://github.com/user-attachments/assets/37f558de-fc96-46f9-a504-2ed2e3992c8c)
+- User-friendly design with dynamic resizing capabilities.
+- Built using `tkinter`.
 
-How to Run
+### **Crawling Functionality**
 
-1. Clone or download this repository.
-2. Navigate to the directory containing the script.
-3. Run the script:
+- Extracts:
+    - **External links**: Links to pages outside the base domain.
+    - **JavaScript files**: Links to `.js` files.
+    - **CSS files**: Links to `.css` files.
+- Follows internal links to ensure comprehensive crawling.
+- Filters out predefined domains (e.g., social media, trackers).
 
-![image](https://github.com/user-attachments/assets/9789835b-1f96-4dde-badc-874f63548c13)
+### **Multithreaded Crawling**
 
-**Usage**
+- Uses `ThreadPoolExecutor` to crawl multiple pages concurrently, improving performance.
 
-**Main Features**
+### **Customizable Options**
 
-1. **Enter URL:** Input the website URL to start crawling. Ensure the URL begins with http:// or https://.
-2. **Select Options:**
+- **Save to file**: Save results to `.txt` files.
+- **Extract JS files**: Enable or disable JavaScript file extraction.
+- **Extract CSS files**: Enable or disable CSS file extraction.
+- **Extract External Links**: Toggle external link extraction and display.
 
-- Check "Print to screen" to display the external links on-screen (checked by default).
-- Check "Save to file" to save the external links to a .txt file.
+### **Dynamic Layout**
 
-4. **Start Crawling:** Click the Start Crawl button to begin crawling.
-5. **Adjust Font Size:** Use the "Increase Font Size" and "Decrease Font Size" buttons to adjust the font size dynamically.
-6. **View Results:**
+- Components resize and adjust dynamically with the window.
+- Checkbuttons and text areas maintain usability across screen sizes.
 
-- Results will appear in the scrollable text area if "Print to screen" is selected.
-- If "Save to file" is selected, you'll be prompted to choose a filename and location.
+### **Crawl Stopping Capability**
 
-**Example Workflow**
+- **Stop Crawl** button instantly halts the crawling process.
 
-1. Input a URL (e.g., https://example.com).
-2. Check "Print to screen" and "Save to file."
-3. Click "Start Crawl."
-4. Adjust font size as needed.
-5. View results in the output area and check the saved file.
+### **Result Display**
 
-**Screenshots**
+- Results are displayed in a scrollable text box for easy viewing.
+- Includes external links, JavaScript files, and CSS files based on user preferences.
 
-**Main Interface**
+### **Error Handling**
 
-![image](https://github.com/user-attachments/assets/fb196054-6f3b-4e0f-b5bb-230e7755a0ad)
+- Provides clear error messages for invalid URLs or network issues.
 
-Limitations
+### **File Saving**
 
-- The application does not support JavaScript-rendered content.
-- Crawling respects a 1-3 second delay between requests to avoid overwhelming servers.
-- Does not follow the robots.txt protocol (can be added in future versions).
+- Allows saving extracted links to `.txt` files with user-specified filenames.
 
-**Future Enhancements**
+### **Font Size Adjustment**
 
-- Add support for rendering JavaScript content (e.g., using Selenium or Playwright).
-- Implement robots.txt compliance to respect website crawling rules.
-- Provide more customization options for themes and layouts.
+- Includes buttons to increase or decrease the font size for better accessibility.
 
-**License**
+### **Request Handling**
 
-This project is licensed under the MIT License.
+- Suppresses HTTPS certificate warnings.
+- Adds random delays between requests to avoid overwhelming servers.
 
-**Contributions**
+---
 
-Contributions are welcome! Please feel free to fork this repository and submit a pull request.
+## Installation
+
+1. Clone this repository:
+    
+    ```bash
+    git clone https://github.com/your-repo/website-crawler.git
+    ```
+    
+2. Navigate to the project directory:
+    
+    ```bash
+    cd website-crawler
+    ```
+    
+3. Install dependencies using `pip`:
+    
+    ```bash
+    pip install -r requirements.txt
+    ```
+    
+    **Note**: Ensure you have Python 3.7 or later installed.
+
+---
+
+## Usage
+
+1. Run the application:
+    
+    ```bash
+    python website_crawler.py
+    ```
+    
+2. Enter the URL to start crawling.
+3. Customize options:
+    - Enable or disable JavaScript, CSS, or external link extraction.
+    - Choose whether to save results to files.
+4. Click **Start Crawl** to begin crawling.
+5. View results in the scrollable text area or save them to files.
+6. Use **Stop Crawl** to halt the process if necessary.
+
+---
+
+## Example Output
+
+Results are displayed in the application and saved as `.txt` files if the "Save to file" option is enabled.
+
+### Example:
+
+#### In-App Display:
+
+```
+Crawling started...
+
+External links found:
+https://example.com/page1
+https://example.com/page2
+
+JavaScript files found:
+https://example.com/static/js/script.js
+
+CSS files found:
+https://example.com/static/css/style.css
+
+Crawling finished.
+```
+
+#### Saved Files:
+
+- `external_links.txt`
+- `js_files.txt`
+- `css_files.txt`
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes and push the branch.
+4. Open a pull request describing your changes.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://chatgpt.com/g/g-cKXjWStaE-python/c/LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- Built with `tkinter` for GUI.
+- Utilizes `requests` and `BeautifulSoup` for web scraping.
+
+---
+
+## Contact
+
+For questions or feedback, please contact:
+
+- Name: Aaron Trickett
+    
+- GitHub: [https://github.com/ATrickett]
