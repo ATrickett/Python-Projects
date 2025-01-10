@@ -135,9 +135,20 @@ root = tk.Tk()
 root.title("URL Scanner")
 root.configure(bg="black")
 
-# Configure grid layout for resizing
-root.columnconfigure(0, weight=1)
-root.rowconfigure(3, weight=1)
+# Context menu for right-click paste in URL entry
+def paste_text(event=None):
+    try:
+        url_entry.delete(0, tk.END)  # Clear existing content
+        url_entry.insert(0, root.clipboard_get())  # Paste content from clipboard
+    except tk.TclError:
+        pass  # Ignore errors (e.g., if clipboard is empty)
+
+# Add a context menu for the URL entry
+context_menu = tk.Menu(root, tearoff=0)
+context_menu.add_command(label="Paste", command=paste_text)
+
+def show_context_menu(event):
+    context_menu.post(event.x_root, event.y_root)
 
 # Initialize font
 text_font = font.Font(family="Helvetica", size=DEFAULT_FONT_SIZE)
@@ -153,6 +164,7 @@ url_label.grid(row=0, column=0, padx=5, pady=10)
 url_entry = tk.Entry(frame, width=50, bg="black", fg="white", insertbackground="white", font=text_font)
 url_entry.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 url_entry.bind("<Return>", start_scan)
+url_entry.bind("<Button-3>", show_context_menu)  # Right-click binding for context menu
 
 frame.columnconfigure(1, weight=1)
 
@@ -160,7 +172,6 @@ frame.columnconfigure(1, weight=1)
 options_frame = tk.Frame(root, bg="black", height=50)
 options_frame.grid(row=1, column=0, pady=5, sticky="nsew")
 
-# Configure grid layout for options_frame
 options_frame.columnconfigure(0, weight=1)
 options_frame.columnconfigure(1, weight=1)
 options_frame.columnconfigure(2, weight=1)
