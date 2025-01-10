@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import urllib3
+import re
 
 # Suppress only the InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -25,7 +26,6 @@ IGNORES = [
     ".fontawesomecdn.net", ".fontawesomecdn.org"
 ]
 
-# Font settings
 DEFAULT_FONT_SIZE = 12
 
 def should_ignore(link_domain):
@@ -39,15 +39,15 @@ def scan_url(url):
         response = requests.get(url, headers=HEADERS, verify=False, timeout=5)
         response.raise_for_status()
 
-        # Parse HTML content
-        soup = BeautifulSoup(response.content.decode(response.encoding or 'utf-8', errors='replace'), 'html.parser')
+        html_content = response.content.decode(response.encoding or 'utf-8', errors='replace')
+        soup = BeautifulSoup(html_content, 'html.parser')
 
         base_domain, _ = urlparse(url).netloc, url
         external_links = []
         js_files = []
         css_files = []
 
-        # Extract external links
+        # Extract external links using bs4
         for a_tag in soup.find_all('a', href=True):
             link = a_tag['href']
             full_link = urljoin(url, link)
@@ -56,16 +56,33 @@ def scan_url(url):
             if link_domain and link_domain != base_domain and not should_ignore(link_domain):
                 external_links.append(full_link)
 
-        # Extract JS files (both external and inline)
+        # Extract JS files using BeautifulSoup
         for script_tag in soup.find_all('script'):
             if script_tag.has_attr('src'):  # External JS
                 js_files.append(urljoin(url, script_tag['src']))
             else:  # Inline JS
                 inline_js_content = script_tag.string or script_tag.text
-                if inline_js_content:  # Exclude empty or whitespace-only scripts
+                if inline_js_content:
                     js_files.append(f"INLINE: {inline_js_content.strip()}")
 
-        # Extract CSS files
+        # Extract JS files using regex
+        script_matches = re.findall(r'<script[^>]*>(.*?)</script>', html_content, re.DOTALL | re.IGNORECASE)
+        src_matches = re.findall(r'<script[^>]*src=["\'](.*?)["\']', html_content, re.IGNORECASE)
+
+        # Extract JS URLs directly using regex
+        js_url_matches = re.findall(r"https?://[^>]+\.js", html_content)
+
+        # Add regex-found external JS files
+        for src in src_matches + js_url_matches:
+            js_files.append(urljoin(url, src))
+
+        # Add regex-found inline JS
+        for script in script_matches:
+            cleaned_script = script.strip()
+            if cleaned_script:
+                js_files.append(f"INLINE: {cleaned_script}")
+
+        # Extract CSS files using BeautifulSoup
         for link_tag in soup.find_all('link', rel="stylesheet", href=True):
             css_files.append(urljoin(url, link_tag['href']))
 
@@ -130,6 +147,18 @@ def save_links_to_file(links, filename):
     except IOError as e:
         print(f"Error saving links to file: {e}")
 
+# Initialize GUI
+root = tk.Tk()
+root.title("URL Scanner")
+root.configure(bg="black")
+
+# Configure grid resizing
+root.columnconfigure(0, weight=1)
+root.rowconfigure(3, weight=1)
+
+# Initialize font
+text_font = font.Font(family="Helvetica", size=DEFAULT_FONT_SIZE)
+
 # Font size adjustment functions
 def increase_font_size():
     current_size = text_font['size']
@@ -139,11 +168,6 @@ def decrease_font_size():
     current_size = text_font['size']
     text_font.configure(size=max(current_size - 1, 8))
 
-# Initialize GUI
-root = tk.Tk()
-root.title("URL Scanner")
-root.configure(bg="black")
-
 # Context menu for right-click paste in URL entry
 def paste_text(event=None):
     try:
@@ -152,20 +176,16 @@ def paste_text(event=None):
     except tk.TclError:
         pass  # Ignore errors (e.g., if clipboard is empty)
 
-# Add a context menu for the URL entry
 context_menu = tk.Menu(root, tearoff=0)
 context_menu.add_command(label="Paste", command=paste_text)
 
 def show_context_menu(event):
     context_menu.post(event.x_root, event.y_root)
 
-# Initialize font
-text_font = font.Font(family="Helvetica", size=DEFAULT_FONT_SIZE)
-
 # URL Input Section
 frame = tk.Frame(root, bg="black", height=60)
 frame.grid(row=0, column=0, pady=5, sticky="ew")
-frame.grid_propagate(False)
+frame.columnconfigure(1, weight=1)
 
 url_label = tk.Label(frame, text="Enter URL:", bg="black", fg="white", font=text_font)
 url_label.grid(row=0, column=0, padx=5, pady=10)
@@ -173,18 +193,12 @@ url_label.grid(row=0, column=0, padx=5, pady=10)
 url_entry = tk.Entry(frame, width=50, bg="black", fg="white", insertbackground="white", font=text_font)
 url_entry.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 url_entry.bind("<Return>", start_scan)
-url_entry.bind("<Button-3>", show_context_menu)  # Right-click binding for context menu
+url_entry.bind("<Button-3>", show_context_menu)
 
-frame.columnconfigure(1, weight=1)
-
-# Options Section (Check Buttons)
-options_frame = tk.Frame(root, bg="black", height=50)
+# Options Section
+options_frame = tk.Frame(root, bg="black")
 options_frame.grid(row=1, column=0, pady=5, sticky="nsew")
-
-options_frame.columnconfigure(0, weight=1)
-options_frame.columnconfigure(1, weight=1)
-options_frame.columnconfigure(2, weight=1)
-options_frame.columnconfigure(3, weight=1)
+options_frame.columnconfigure((0, 1, 2, 3), weight=1)
 
 save_var = tk.BooleanVar()
 js_var = tk.BooleanVar()
@@ -202,17 +216,15 @@ css_check.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
 external_link_check.grid(row=0, column=3, padx=10, pady=5, sticky="ew")
 
 # Scan Button Section
-button_frame = tk.Frame(root, bg="black", height=40)
-button_frame.grid(row=2, column=0, pady=5, sticky="n")
-button_frame.grid_propagate(False)
+button_frame = tk.Frame(root, bg="black")
+button_frame.grid(row=2, column=0, pady=5, sticky="ew")
 
 scan_button = tk.Button(button_frame, text="Start Scan", command=start_scan, bg="black", fg="white", font=text_font)
 scan_button.pack(side="left", padx=10, pady=5)
 
 # Font Size Adjustment Buttons
-font_frame = tk.Frame(root, bg="black", height=40)
+font_frame = tk.Frame(root, bg="black")
 font_frame.grid(row=4, column=0, pady=5, sticky="ew")
-font_frame.grid_propagate(False)
 
 increase_font_button = tk.Button(font_frame, text="Increase Font Size", command=increase_font_size, bg="black", fg="white", font=text_font)
 increase_font_button.pack(side="left", padx=10)
@@ -220,10 +232,8 @@ increase_font_button.pack(side="left", padx=10)
 decrease_font_button = tk.Button(font_frame, text="Decrease Font Size", command=decrease_font_size, bg="black", fg="white", font=text_font)
 decrease_font_button.pack(side="left", padx=10)
 
-# Results Section (Resizable)
-result_text = scrolledtext.ScrolledText(root, width=80, height=20, bg="black", fg="white", insertbackground="white", font=text_font)
+# Results Section
+result_text = scrolledtext.ScrolledText(root, bg="black", fg="white", insertbackground="white", font=text_font)
 result_text.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
-
-root.rowconfigure(3, weight=1)
 
 root.mainloop()
