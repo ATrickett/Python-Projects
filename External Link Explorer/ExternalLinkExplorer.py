@@ -70,7 +70,7 @@ def scan_url(url):
         messagebox.showerror("Error", f"Failed to scan URL: {e}")
         return [], [], []
 
-def start_scan():
+def start_scan(event=None):
     url = url_entry.get()
     if not url:
         messagebox.showerror("Error", "Please enter a URL")
@@ -152,6 +152,7 @@ url_label.grid(row=0, column=0, padx=5, pady=10)
 
 url_entry = tk.Entry(frame, width=50, bg="black", fg="white", insertbackground="white", font=text_font)
 url_entry.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
+url_entry.bind("<Return>", start_scan)
 
 frame.columnconfigure(1, weight=1)
 
