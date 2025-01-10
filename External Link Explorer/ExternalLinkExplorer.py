@@ -39,54 +39,35 @@ def scan_url(url):
         response = requests.get(url, headers=HEADERS, verify=False, timeout=5)
         response.raise_for_status()
 
+        # Decode HTML content
         html_content = response.content.decode(response.encoding or 'utf-8', errors='replace')
         soup = BeautifulSoup(html_content, 'html.parser')
 
-        base_domain, _ = urlparse(url).netloc, url
-        external_links = []
-        js_files = []
-        css_files = []
+        base_domain = urlparse(url).netloc
+        external_links = set()
+        js_files = set()
+        css_files = set()
 
-        # Extract external links using bs4
+        # Extract structured data using BS4
         for a_tag in soup.find_all('a', href=True):
-            link = a_tag['href']
-            full_link = urljoin(url, link)
-            link_domain = urlparse(full_link).netloc
+            full_link = urljoin(url, a_tag['href'])
+            if base_domain not in full_link and not should_ignore(urlparse(full_link).netloc):
+                external_links.add(full_link)
 
-            if link_domain and link_domain != base_domain and not should_ignore(link_domain):
-                external_links.append(full_link)
-
-        # Extract JS files using BeautifulSoup
         for script_tag in soup.find_all('script'):
             if script_tag.has_attr('src'):  # External JS
-                js_files.append(urljoin(url, script_tag['src']))
-            else:  # Inline JS
-                inline_js_content = script_tag.string or script_tag.text
-                if inline_js_content:
-                    js_files.append(f"INLINE: {inline_js_content.strip()}")
+                js_files.add(urljoin(url, script_tag['src']))
+            elif script_tag.string:  # Inline JS
+                js_files.add(f"INLINE: {script_tag.string.strip()}")
 
-        # Extract JS files using regex
-        script_matches = re.findall(r'<script[^>]*>(.*?)</script>', html_content, re.DOTALL | re.IGNORECASE)
-        src_matches = re.findall(r'<script[^>]*src=["\'](.*?)["\']', html_content, re.IGNORECASE)
+        for link_tag in soup.find_all('link', rel='stylesheet', href=True):
+            css_files.add(urljoin(url, link_tag['href']))
 
-        # Extract JS URLs directly using regex
-        js_url_matches = re.findall(r"https?://[^>]+\.js", html_content)
+        # Use regex for unstructured data (e.g., additional JS URLs)
+        js_url_matches = re.findall(r"https?://[^\s\"'>]+\.js", html_content)
+        js_files.update(js_url_matches)
 
-        # Add regex-found external JS files
-        for src in src_matches + js_url_matches:
-            js_files.append(urljoin(url, src))
-
-        # Add regex-found inline JS
-        for script in script_matches:
-            cleaned_script = script.strip()
-            if cleaned_script:
-                js_files.append(f"INLINE: {cleaned_script}")
-
-        # Extract CSS files using BeautifulSoup
-        for link_tag in soup.find_all('link', rel="stylesheet", href=True):
-            css_files.append(urljoin(url, link_tag['href']))
-
-        return list(set(external_links)), list(set(js_files)), list(set(css_files))
+        return sorted(external_links), sorted(js_files), sorted(css_files)
 
     except requests.exceptions.RequestException as e:
         messagebox.showerror("Error", f"Failed to scan URL: {e}")
