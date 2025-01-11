@@ -93,7 +93,7 @@ This project is licensed under the MIT License. Feel free to use and modify the 
 
 ## Example Screenshot
 
-_Add a screenshot of the running GUI application here._
+![image](https://github.com/user-attachments/assets/95c5905b-cde1-4893-af1c-b24ae3df4374)
 
 ---
 
