@@ -1,150 +1,100 @@
-readme.md
+# readme
 
-A Python script to fetch and display the `robots.txt` file for a given website domain. This tool is useful for developers, SEO analysts, and anyone interested in exploring a website's crawling rules.
+This application is a GUI-based tool to fetch and parse `robots.txt` files from websites. It uses `tkinter` for the graphical interface and supports concurrent fetching of `robots.txt` files for both HTTP and HTTPS protocols. The application is designed to be robust, user-friendly, and helpful for web administrators or developers who need to inspect `robots.txt` files.
 
 ---
 
 ## Features
 
-- **Protocol Handling**: Automatically tries both `https` and `http` to fetch the `robots.txt` file.
-    
-- **Retry Mechanism**: Retries failed requests up to 3 times to handle transient network issues.
-    
-- **Directive Parsing**: Extracts and displays directives such as `User-agent`, `Disallow`, and `Sitemap`.
-    
-- **Error Handling**: Handles invalid URLs, connection timeouts, and network issues gracefully.
-    
-- **Parallel Requests**: Fetches `robots.txt` using both protocols simultaneously for efficiency.
-    
+- **Domain Normalization**: Validates and normalizes user input for website domains.
+- **Robust HTTP Requests**: Implements retry logic with a backoff mechanism to handle network errors gracefully.
+- **Parallel Fetching**: Fetches `robots.txt` for both HTTP and HTTPS schemes simultaneously.
+- **Error Handling**: Provides detailed error messages for network or input issues.
+- **Robots.txt Parsing**: Extracts and displays directives in a structured format.
+- **Customizable GUI**:
+    - Resizable output display.
+    - Adjustable text size for better readability.
+    - Interactive buttons and key bindings for ease of use.
 
 ---
 
 ## Prerequisites
 
-- Python 3.7 or higher
-    
-- The following Python libraries:
-    
+- Python 3.6 or later
+- Required Python libraries:
     - `requests`
-        
     - `urllib`
-        
+    - `tkinter` (comes pre-installed with Python on most systems)
 
-Install the dependencies using `pip`:
+---
 
-```
-pip install requests
-```
+## Installation
+
+1. Clone the repository or copy the script.
+2. Install required dependencies by running:
+    
+    bash
+    
+    Copy code
+    
+    `pip install requests`
+    
+3. Save the script as `robots_fetcher.py` or any preferred name.
 
 ---
 
 ## Usage
 
-1. Clone the repository or download the script.
+1. Run the script:
     
-2. Run the script in your terminal:
+    bash
     
-    ```
-    python fetch_robots.py
-    ```
+    Copy code
     
-3. Enter the website domain (e.g., `example.com` or `www.example.com`) when prompted.
+    `python robots_fetcher.py`
     
-
-### Example
-
-#### Input:
-
-```
-example.com
-```
-
-#### Output:
-
-```
---- Results for HTTPS ---
-robots.txt content:
-User-agent: *
-Disallow: /
-
-Parsed Directives:
-User-agent: *
-Disallow: /
-```
+2. Enter a domain name (e.g., `example.com`) in the input field.
+3. Click the "Fetch robots.txt" button or press **Enter** to retrieve the file.
+4. View the fetched content and parsed directives in the output area.
+5. Adjust the text size using the dropdown for better readability.
 
 ---
 
-## How It Works
+## GUI Layout
 
-1. **Input Validation**:
-    
-    - The script ensures the entered domain is valid and formats it correctly for further processing.
-        
-2. **Fetching** `**robots.txt**`:
-    
-    - Uses both `https` and `http` protocols to locate the `robots.txt` file.
-        
-    - Implements retries to ensure robustness against transient failures.
-        
-3. **Parsing Directives**:
-    
-    - Extracts key information from the `robots.txt` file, such as:
-        
-        - `User-agent`
-            
-        - `Disallow`
-            
-        - `Allow`
-            
-        - `Sitemap`
-            
-4. **Error Handling**:
-    
-    - Provides descriptive error messages for issues like invalid domains, timeouts, or connection errors.
-        
+- **Input Section**:
+    - Enter a website domain in the text box.
+    - A button to fetch the `robots.txt` file.
+    - A dropdown to adjust the text size of the output.
+- **Output Section**:
+    - A scrollable text area to display the fetched `robots.txt` file and parsed directives.
 
 ---
 
-## Directory Structure
+## Error Handling
 
-```
-.
-├── fetch_robots.py    # Main Python script
-├── README.md          # Documentation
-```
+- **Invalid Input**: Displays an error popup if the domain is invalid.
+- **Network Errors**: Informs the user of issues like timeouts or server errors.
+- **Not Found**: Indicates if the `robots.txt` file is missing.
 
 ---
 
-## Enhancements (Future Updates)
+## Contributing
 
-- Add support for following `Sitemap` links in `robots.txt`.
-    
-- Implement a GUI for user-friendly interaction.
-    
-- Provide an option to save the fetched `robots.txt` and parsed data to a file.
-    
+Contributions are welcome! If you find a bug or want to suggest improvements, please create an issue or submit a pull request.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. Feel free to use and modify the code.
 
 ---
 
-## Contributions
+## Example Screenshot
 
-Contributions are welcome! If you'd like to contribute to this project:
-
-1. Fork the repository.
-    
-2. Create a new branch (`feature-branch`).
-    
-3. Commit your changes and push them.
-    
-4. Open a pull request.
-    
-
-Feel free to raise issues or suggest improvements in the repository's issue tracker.
+_Add a screenshot of the running GUI application here._
 
 ---
+
+Happy Fetching! 🎉
