@@ -4,23 +4,13 @@ import concurrent.futures
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import logging
+import tkinter as tk
+from tkinter import messagebox, scrolledtext, ttk
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 def normalize_url(url):
-    """
-    Normalize the input URL to ensure it's a valid domain format.
-    
-    Args:
-        url (str): The user-provided URL.
-    
-    Returns:
-        str: A cleaned and normalized domain name.
-    
-    Raises:
-        ValueError: If the input URL is invalid.
-    """
     url = url.strip().rstrip('/')
     parsed_url = urlparse(url)
     if not parsed_url.netloc and not parsed_url.path:
@@ -28,12 +18,6 @@ def normalize_url(url):
     return parsed_url.netloc or parsed_url.path
 
 def create_session_with_retries():
-    """
-    Creates a requests session with retry logic.
-    
-    Returns:
-        requests.Session: A session object with retry capabilities.
-    """
     session = requests.Session()
     retries = Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
     adapter = HTTPAdapter(max_retries=retries)
@@ -42,15 +26,6 @@ def create_session_with_retries():
     return session
 
 def fetch_robots(url):
-    """
-    Fetch the robots.txt file from the given URL.
-    
-    Args:
-        url (str): The full URL to the robots.txt file.
-    
-    Returns:
-        str: The content of the robots.txt file or an error message.
-    """
     try:
         session = create_session_with_retries()
         response = session.get(url, timeout=10)
@@ -63,15 +38,6 @@ def fetch_robots(url):
         return handle_request_error(e)
 
 def fetch_robots_in_parallel(domain):
-    """
-    Fetch the robots.txt file using both https and http in parallel.
-    
-    Args:
-        domain (str): The domain name (e.g., example.com).
-    
-    Returns:
-        dict: A dictionary with results for 'https' and 'http'.
-    """
     schemes = ["https", "http"]
     results = {}
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -85,15 +51,6 @@ def fetch_robots_in_parallel(domain):
     return results
 
 def handle_request_error(exception):
-    """
-    Handle errors during the request.
-    
-    Args:
-        exception (Exception): The exception raised during the request.
-    
-    Returns:
-        str: A user-friendly error message.
-    """
     if isinstance(exception, requests.Timeout):
         return "Request timed out. Please check your network and try again."
     elif isinstance(exception, requests.ConnectionError):
@@ -101,15 +58,6 @@ def handle_request_error(exception):
     return f"An unexpected error occurred: {exception}"
 
 def parse_robots_txt(content):
-    """
-    Parse the content of robots.txt for key directives like Sitemap or Disallow.
-    
-    Args:
-        content (str): The content of the robots.txt file.
-    
-    Returns:
-        dict: A dictionary with parsed directives.
-    """
     directives = {}
     for line in content.splitlines():
         if ":" in line:
@@ -118,21 +66,62 @@ def parse_robots_txt(content):
             directives.setdefault(key, []).append(value)
     return directives
 
-if __name__ == "__main__":
-    domain = input("Enter the website domain (e.g., example.com): ")
+def fetch_and_display():
+    domain = entry.get()
     try:
         domain = normalize_url(domain)
         results = fetch_robots_in_parallel(domain)
+        output.delete(1.0, tk.END)
         for scheme, result in results.items():
-            print(f"\n--- Results for {scheme.upper()} ---")
+            output.insert(tk.END, f"\n--- Results for {scheme.upper()} ---\n")
             if "not found" in result.lower() or "error" in result.lower():
-                print(result)
+                output.insert(tk.END, result + "\n")
             else:
-                print("robots.txt content:\n", result)
-                # Optionally parse and display directives
+                output.insert(tk.END, "robots.txt content:\n" + result + "\n")
                 directives = parse_robots_txt(result)
-                print("\nParsed Directives:")
+                output.insert(tk.END, "\nParsed Directives:\n")
                 for key, values in directives.items():
-                    print(f"{key}: {', '.join(values)}")
+                    output.insert(tk.END, f"{key}: {', '.join(values)}\n")
     except ValueError as e:
-        print(e)
+        messagebox.showerror("Invalid Input", str(e))
+
+def update_text_size(event):
+    selected_size = text_size_var.get()
+    output.config(font=("TkDefaultFont", selected_size))
+
+# GUI Setup
+root = tk.Tk()
+root.title("robots.txt Fetcher")
+
+# Input Frame
+frame = tk.Frame(root)
+frame.pack(pady=10, padx=10)
+
+label = tk.Label(frame, text="Enter Website Domain:", font=("TkDefaultFont", 12))
+label.pack(side=tk.LEFT, padx=5)
+
+entry = tk.Entry(frame, width=40)
+entry.bind('<Return>', lambda event: fetch_and_display())
+entry.pack(side=tk.LEFT, padx=5)
+
+fetch_button = tk.Button(frame, text="Fetch robots.txt", command=fetch_and_display, font=("TkDefaultFont", 12))
+fetch_button.pack(side=tk.LEFT, padx=5)
+
+# Text Size Dropdown
+text_size_var = tk.IntVar(value=12)
+size_label = tk.Label(frame, text="Text Size:", font=("TkDefaultFont", 12))
+size_label.pack(side=tk.LEFT, padx=5)
+
+text_size_dropdown = ttk.Combobox(frame, textvariable=text_size_var, values=[8, 10, 12, 14, 16, 18, 20])
+text_size_dropdown.pack(side=tk.LEFT, padx=5)
+text_size_dropdown.bind("<<ComboboxSelected>>", update_text_size)
+
+# Output Frame
+output = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=30, height=20, font=("TkDefaultFont", 12))
+output.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+# Allow resizing of the output display
+root.rowconfigure(1, weight=1)
+
+# Run the GUI loop
+root.mainloop()
