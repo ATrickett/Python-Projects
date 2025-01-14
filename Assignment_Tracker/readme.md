@@ -1,161 +1,189 @@
+The **Assignment Tracker** is a Python-based desktop application built with `Tkinter` and `SQLite`. It allows users to manage their assignments, track due dates, and organize tasks by class. Users can add, edit, mark as completed, and delete assignments, as well as filter them by class or date range.
 
-
-**Assignment Tracker** is a simple and intuitive desktop application to manage assignments and deadlines. Built with Python and Tkinter, it includes features for adding, filtering, editing, and tracking assignments with a user-friendly interface.
+---
 
 ## Features
 
-- Add new assignments with details like class, assignment name, due date, and notes.
+### 1. Add Assignments
+
+- Input assignment details including:
     
+    - **Class Name**
+        
+    - **Assignment Name**
+        
+    - **Due Date**
+        
+    - **Notes**
+        
+- Save assignments to a local SQLite database.
+    
+
+### 2. Edit Assignments
+
+- Select an existing assignment from the list to edit.
+    
+- Update details and save changes back to the database.
+    
+
+### 3. Mark as Completed
+
+- Toggle the completion status of an assignment directly from the list.
+    
+
+### 4. Delete Assignments
+
+- Permanently delete selected assignments.
+    
+
+### 5. Filters
+
 - Filter assignments by:
     
-    - Class
+    - **Class** (selectable from a dropdown)
         
-    - Start and end date
-        
-- Edit, delete, or mark assignments as completed.
-    
-- Dynamic, resizable interface with a responsive Treeview.
-    
-- Default date filtering:
-    
-    - End date defaults to 30 days from today.
-        
-- Persistent data storage using SQLite.
-    
-
-## Requirements
-
-- Python 3.7 or higher
-    
-- Required libraries:
-    
-    - `tkinter` (included in standard Python distribution)
-        
-    - `tkcalendar`
-        
-    - `sqlite3` (included in standard Python distribution)
+    - **Date Range** (start and end dates).
         
 
-### Install Required Libraries
+### 6. Dynamic Layout
 
-Install any missing libraries using pip:
+- The assignment display dynamically adjusts column widths based on window size.
+    
+- Columns for `Completed` and `Due Date` are set to occupy 10% of the display width.
+    
 
-```
-pip install tkcalendar
-```
+---
+
+## Prerequisites
+
+### Python
+
+Make sure you have Python 3.x installed on your system.
+
+### Dependencies
+
+The application requires the following Python libraries:
+
+- `tkinter` (Standard Python GUI library)
+    
+- `tkcalendar` (Install using `pip install tkcalendar` if not already installed)
+    
+- `sqlite3` (Comes bundled with Python)
+    
+
+---
 
 ## Installation
 
-### Option 1: Run the Python Script
-
-1. Clone this repository or download the `assignment_tracker.py` file.
-    
-2. Install Python and the required libraries (see **Requirements**).
-    
-3. Run the script:
+1. **Clone or Download the Repository**
     
     ```
-    python assignment_tracker.py
+    git clone https://github.com/your-username/assignment-tracker.git
+    cd assignment-tracker
+    ```
+    
+2. **Install Dependencies** Make sure you have `tkcalendar` installed:
+    
+    ```
+    pip install tkcalendar
+    ```
+    
+3. **Run the Application** Execute the Python script:
+    
+    ```
+    python Assignment_Tracker.py
     ```
     
 
-### Option 2: Use the Executable File
-
-1. Download the pre-built executable from the `dist` directory or create it using `PyInstaller` (see **Build Instructions** below).
-    
-2. Run the `.exe` file directly (no Python installation required).
-    
-
-## Build Instructions (Optional)
-
-To create an executable file using PyInstaller:
-
-1. Install PyInstaller:
-    
-    ```
-    pip install pyinstaller
-    ```
-    
-2. Build the executable:
-    
-    ```
-    pyinstaller --onefile --noconsole --name "AssignmentTracker" --key "your_secret_key" assignment_tracker.py
-    ```
-    
-3. The executable will be located in the `dist` directory.
-    
+---
 
 ## Usage
 
-1. **Adding Assignments**:
+1. **Add Assignments**
     
-    - Fill in the details under "Class," "Assignment," "Due Date," and "Notes."
+    - Fill in the required fields (**Class**, **Assignment**, and **Due Date**) and click `Add Assignment`.
         
-    - Click **Add Assignment** to save.
-        
-2. **Filtering Assignments**:
+2. **Edit Assignments**
     
-    - Use the "Filter by Class" dropdown to filter by specific classes.
+    - Select an assignment from the display list.
         
-    - Set a start and end date for date-based filtering.
+    - Click `Edit Assignment`, make changes, and save by clicking the `Update Assignment` button.
         
-    - Click **Apply Date Filter**.
-        
-3. **Managing Assignments**:
+3. **Mark as Completed**
     
-    - Select an assignment from the table to:
+    - Select an assignment and click `Mark Completed` to toggle its completion status.
         
-        - **Edit**: Update assignment details.
-            
-        - **Toggle Completion**: Mark as completed or uncompleted.
-            
-        - **Delete**: Remove the assignment.
-            
+4. **Delete Assignments**
+    
+    - Select an assignment and click `Delete Assignment` to remove it permanently.
+        
+5. **Filter Assignments**
+    
+    - Use the dropdown to filter by class.
+        
+    - Apply date filters by selecting a start and end date, then click `Apply Date Filter`.
+        
+
+---
 
 ## Screenshots
 
-_Add screenshots of your application here for better visualization._
+### Main Interface
 
-## File Structure
+### Adding an Assignment
 
-- `assignment_tracker.py`: Main application script.
+---
+
+## Project Structure
+
+```
+assignment-tracker/
+│
+├── Assignment_Tracker.py   # Main application script
+├── assignments.db          # SQLite database (auto-created on first run)
+├── README.md               # Project documentation
+```
+
+---
+
+## How It Works
+
+- **Database**: The application uses an SQLite database (`assignments.db`) to store assignments. The database is created automatically on the first run.
     
-- `assignments.db`: SQLite database (created automatically if not present).
+- **GUI**: The graphical user interface is built with `Tkinter`.
     
-- `dist/`: Directory containing the executable file (after building with PyInstaller).
+- **Dynamic Treeview**: Assignments are displayed in a dynamic `Treeview` widget with resizable columns.
     
 
-## Contribution
+---
 
-Contributions are welcome! If you'd like to enhance or fix the app, follow these steps:
+## Future Enhancements
 
-1. Fork this repository.
+- Add recurring assignments.
     
-2. Create a feature branch:
+- Export assignments to CSV or Excel.
     
-    ```
-    git checkout -b feature-name
-    ```
+- Add a search bar for quick filtering.
     
-3. Commit your changes:
+- Add color coding for overdue assignments.
     
-    ```
-    git commit -m "Description of changes"
-    ```
-    
-4. Push to the branch:
-    
-    ```
-    git push origin feature-name
-    ```
-    
-5. Open a pull request.
-    
+
+---
+
+## Contributing
+
+Feel free to fork the repository and submit pull requests. Contributions are welcome!
+
+---
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License.
 
-## Contact
+---
 
-For questions or feedback, please contact
+## Acknowledgements
+
+- [Tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
+    
+- [tkcalendar Documentation](https://github.com/j4321/tkcalendar)
